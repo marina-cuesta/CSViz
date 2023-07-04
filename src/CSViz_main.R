@@ -92,8 +92,8 @@ str(data)
  # the maximum percentage of NA values is 15%
 threshold_na_values=15
  # computing which variables meet the condition of having less Na values than the threshols
-cond_variables=(colSums(is.na(data))*100)<threshold_na_values
- # selecting those variables
+cond_variables=(colMeans(is.na(data))*100)<threshold_na_values
+# selecting those variables
 data=data[,cond_variables]
 dim(data)
 

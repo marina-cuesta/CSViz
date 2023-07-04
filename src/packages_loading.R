@@ -4,7 +4,7 @@ installed_packages=installed.packages()
 
 ## list of packages to use
 list.of.packages <- c(
-
+  
   ##  data manage
   "dplyr", "tidyverse",
   
@@ -30,6 +30,7 @@ list.of.packages <- c(
   
   ## for tables
   "flextable",
+  "magick",
   
   # for plots arranging
   "gridExtra",
@@ -37,7 +38,7 @@ list.of.packages <- c(
   
   # for ordinal numbers
   "english"
-  )
+)
 
 
 ## list of packages to use that are not installed yet
