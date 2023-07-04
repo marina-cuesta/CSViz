@@ -1,3 +1,28 @@
+#############################################
+#############################################
+######    Delete variables with NAs    ######
+#############################################
+#############################################
+## Function to delete variables with a higher proportion of NA values than  
+ # threshold_na_values
+## PARAMETERS: 
+# - data is a dataframe
+# - threshold_na_values is the maximum proportion of NA values allowed; in [0,1]
+
+variables_deletion_NAs <- function (data,threshold_na_values){
+  
+  ## Error if threshold_na_values is not between 0 and 1
+  if (threshold_na_values<0 | threshold_na_values>1){
+    stop('threshold_na_values must be between 0 and 1')
+    return(NULL)
+  }
+  # computing which variables meet the condition of having less Na values than the threshold
+  cond_variables=(colMeans(is.na(data)))<threshold_na_values
+  # selecting those variables
+  data=data[,cond_variables]
+  return(data)
+}
+
 ##########################################
 ##########################################
 ######    kDN complexity measure    ######
@@ -410,8 +435,9 @@ extract_separable_subset_2D <- function(dataX_2D, dataY, k,
 # - scale_data = {T, F} if data must be scaled in the method 
 
 CSViz_subspaces_computation<- function(dataX, dataY, k, 
-                                       unique_values_factor,
                                        trunc_data_elimination=TRUE,
+                                       unique_values_factor,
+                                       threshold_na_values=0.15,
                                        scale_data=TRUE){
   
   #######################################
@@ -463,6 +489,9 @@ CSViz_subspaces_computation<- function(dataX, dataY, k,
   #############################
   #### Data preprocessing  ####
   #############################
+  
+  ## Deleting variables with a higher proportion of NAs than threshold_na_values
+  dataX=variables_deletion_NAs(dataX,threshold_na_values)
   
   ## Deleting variables with unique value
   dataX = dataX %>% dplyr::select(where(~n_distinct(.) > 1))

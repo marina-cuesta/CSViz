@@ -88,15 +88,6 @@ str(data)
 ######   PREPARING DATA FOR FUNCTION    ######
 ##############################################
 
-## selecting variables with few NA values
- # the maximum percentage of NA values is 15%
-threshold_na_values=15
- # computing which variables meet the condition of having less Na values than the threshols
-cond_variables=(colMeans(is.na(data))*100)<threshold_na_values
-# selecting those variables
-data=data[,cond_variables]
-dim(data)
-
 # Dividing data into dataX and dataY
 dataX = data %>%
   dplyr::select(-class)
@@ -115,11 +106,13 @@ k=0.05
 unique_values_factor=10
 trunc_data_elimination=T
 scale_data=TRUE
+threshold_na_values=0.15
 
 ## function to compute the subspaces
 results_CSViz_subspaces=CSViz_subspaces_computation(dataX, dataY, k=k, 
-                                                    unique_values_factor=unique_values_factor,
                                                     trunc_data_elimination=trunc_data_elimination,
+                                                    unique_values_factor=unique_values_factor,
+                                                    threshold_na_values=threshold_na_values,
                                                     scale_data=scale_data)
 
 
