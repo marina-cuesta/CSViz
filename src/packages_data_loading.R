@@ -11,6 +11,7 @@ list.of.packages <- c(
   "HDclassif", # wine
   "pdp", #pima
   "rsvd", # digits
+  "MASS",
   
   ##  to read and treat data
   "readr",
