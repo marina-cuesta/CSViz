@@ -1301,8 +1301,7 @@ CSViz_storytelling <- function(results_CSViz_subspaces,min_data,max_data){
     } else if(any(count_unique_values <=2)){
       # plotting geom jitter
       set.seed(1234)
-      plot_data = plot_data + ggplot2::geom_jitter(aes(x=factor(dataX_plot[,1]),y=dataX_plot[,2],
-                                                       colour=class),size = 2.2) +
+      plot_data = plot_data + ggplot2::geom_jitter(aes(x=factor(dataX_plot[,1]),y=dataX_plot[,2]),size = 2.2) +
         # setting x and y axes limits
         ggplot2::coord_cartesian(ylim=c(y_lim_inf,y_lim_sup))
     }
