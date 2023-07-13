@@ -345,6 +345,135 @@ CSViz_subspace_plot <- function(results_CSViz_subspaces, subspace, fixed_xlim=NU
 
 
 
+#########################################################################################
+#########################################################################################
+######   VISUALIZATION OF SUBSPACES: PLOT OF THE AVAILABLE FOR A FIXED SUBSPACE    ######
+#########################################################################################
+#########################################################################################
+
+## Function to visualize the obtained subspaces with a plot and a information table for each one
+## PARAMETERS:
+# - results_CSViz_subspaces is the return of the CSViz_subspaces_computation function
+# - min_data: minimum allowed percentage of data in a subspace for it to be visualized
+# - max_kdn: maximum kDN allowed for a subspace to be displayed
+
+CSViz_available_data_subspace_plot <- function(results_CSViz_subspaces, subspace, fixed_xlim=NULL, fixed_ylim=NULL){
+  
+  ###########################
+  #### gathering results ####
+  ###########################
+  
+  ## Gathering obtained subspace
+  obtained_subspace=results_CSViz_subspaces$obtained_subspaces[[subspace]]
+  
+  ## Gathering original dataX and dataY
+  dataX=results_CSViz_subspaces$dataX
+  dataY=results_CSViz_subspaces$dataY
+  
+  
+  #################################
+  ##### Data charactheristics ##### 
+  #################################
+  
+  ## dataY as factor
+  dataY=factor(dataY) 
+  
+  ## number of classes
+  n_classes=length(unique(dataY))
+  
+  
+  ###########################################################
+  ##### plot aesthetic: Colors palette and point shapes ##### 
+  ###########################################################
+  
+  ## colors palette of the classes for the plots
+  palette_colors="fishy" # from "grafify" library
+  
+  ## point shapes  of the classes
+  point_shapes= c(16, 17, 15, 18,3,4,8,25,6)[1:n_classes]
+  
+  
+  #################################################################
+  ##### obtaining plot of the available data for the subspace ##### 
+  #################################################################
+  
+  ## obtained results for the subspace in the corresponding iteration
+  ix_subspace=obtained_subspace$data_subspace
+  ix_not_subspace=obtained_subspace$data_not_subspace
+  variables=obtained_subspace$variables
+  
+  ## Data for plotting
+  dataX_plot=dataX[c(ix_subspace,ix_not_subspace),variables]
+  dataY_plot=dataY[c(ix_subspace,ix_not_subspace)]
+  
+  ## number of unique values of the X columns to plot
+  count_unique_values <- rapply(dataX_plot,  function(x) length(unique(x)))
+  
+  ## Adding variable class to data for plotting
+  dataX_plot$class=dataY_plot
+  
+  ## if one variable is binary (less than two unique variables), reorder 
+  # dataX_plot so that the binary variable is on first position (and 
+  # then in the x axis in the plot)
+  if(any(count_unique_values <=2)){
+    # identifying the variable to plot in x axis and in y axis
+    var_x=which(count_unique_values<=2)
+    var_y=c(1,2)[!(c(1,2) %in% var_x)]
+    dataX_plot=dataX_plot[,c(var_x,var_y,3)]
+  }
+  
+  ## initialize the plot for the corresponding subspace
+  plot_data = ggplot2::ggplot(data=dataX_plot,
+                                  aes(colour=class,shape = class))  
+  
+  ## scatter plot if both variables are numeric (more than two unique variables)
+  if(all(count_unique_values>2)){
+    plot_data = plot_data+ggplot2::geom_point(aes(x=dataX_plot[,1],y=dataX_plot[,2],),size = 2.2)
+    
+    ## setting xlim and ylim if they are specified in the parameters of the function
+    if(!is.null(fixed_xlim)&!(is.null(fixed_ylim))){
+      plot_data=  plot_data +
+        # setting x and y axes limits
+        ggplot2::coord_cartesian(xlim=fixed_xlim, ylim=fixed_ylim)
+    }
+    
+    ## geom_jitter if one variable is not numeric (less than two unique variables)
+  } else if(any(count_unique_values <=2)){
+    # plotting geom jitter
+    set.seed(1234)
+    plot_data = plot_data+ ggplot2::geom_jitter(aes(x=factor(dataX_plot[,1]),y=dataX_plot[,2]),size = 2.2)
+    
+    ## setting ylim if it is are specified in the parameters of the function
+    if(!is.null(fixed_xlim)&!(is.null(fixed_ylim))){
+      plot_data=  plot_data +
+        # setting  y axes limits
+        ggplot2::coord_cartesian( ylim=fixed_ylim)
+    }
+  }
+  
+  ## adding color
+  plot_data= plot_data +
+    grafify::scale_colour_grafify(palette = palette_colors)+
+    ## adding point shapes
+    ggplot2::scale_shape_manual(values = point_shapes)+
+    
+    ## plot theme
+    ggplot2::theme_bw() +
+    
+    ## tittle
+    ggplot2::ggtitle(paste(c("available data for the"),english::ordinal(subspace),"subspace")) +    
+    ## axes names
+    ggplot2::xlab(colnames(dataX_plot)[1]) +
+    ggplot2::ylab(colnames(dataX_plot)[2]) +
+    
+    ## theme of title and axes
+    ggplot2::theme(plot.title = element_text(hjust = 0.5),
+                   legend.position = "bottom")  
+  
+  return(plot_data)
+}
+
+
 #################################################################################
 #################################################################################
 ######   VISUALIZATION OF SUBSPACES: LIST OF PLOTS + INFORMATION TABLE    ######
@@ -408,10 +537,15 @@ CSViz_plots_table <- function(results_CSViz_subspaces, min_data, max_kdn){
   table_plots_list[1:n_subspaces] = lapply(1:n_subspaces, CSViz_subspace_plot, results_CSViz_subspaces =results_CSViz_subspaces )
   
 
-  return(table_plots_list)
+  return(table_plots_list) ## strutucture(table_plots_list, class="csviz)
 }
 
+resultados=CSViz_plots_table(results_CSViz_subspaces, min_data, max_kdn)
+resultados[[1]]
+resultados[[2]]
+resultados[[3]]
 
+  
 
 #########################################################################
 #########################################################################
@@ -424,7 +558,6 @@ CSViz_plots_table <- function(results_CSViz_subspaces, min_data, max_kdn){
 # - results_CSViz_subspaces is the return of the CSViz_subspaces_computation function
 # - min_data: minimum allowed percentage of data in a subspace for it to be visualized
 # - max_kdn: maximum kDN allowed for a subspace to be displayed
-
 
 CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
   
@@ -445,6 +578,9 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
   ## Gathering original dataY
   dataY=results_CSViz_subspaces$dataY
   
+  ## Gathering original dataY
+  dataX=results_CSViz_subspaces$dataX
+  
   ## classes in data set
   classes=levels(dataY)
   
@@ -459,7 +595,7 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
   list_plots_table=CSViz_plots_table(results_CSViz_subspaces, min_data, max_kdn)
   
   ## subsetting the plots
-  list_plots=list_plots_table[-length(list_plots)]
+  list_plots=list_plots_table[-length(list_plots_table)]
   
   ## subsetting the table
   table=list_plots_table[[length(list_plots_table)]]
@@ -470,178 +606,30 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
   names(table)=c("total", classes,"kDN")
   
   
-  
-  
-  ###########################
-  #### GATHERING RESULTS ####
-  ###########################
-  
-  ## Gathering obtained subspaces
-  obtained_subspaces=results_CSViz_subspaces$obtained_subspaces
-  
-  ## Gathering original dataX and dataY
-  dataX=results_CSViz_subspaces$dataX
-  dataY=results_CSViz_subspaces$dataY
-  
-  
-  #################################
-  ##### Data charactheristics ##### 
-  #################################
-  
-  ## number of points
-  n=dim(dataX)[1]
-  
-  ## dataY as factor
-  dataY=factor(dataY) 
-  
-  ## classes in data set
-  classes=levels(dataY)
-  
-  ## number of classes
-  n_classes=length(unique(dataY))
-  
-  ## number of points in each class
-  n_data_classes=table(factor(dataY, classes))
-  
-  
-  ############################################################
-  ##### graph aesthetic: Colors palette and point shapes ##### 
-  ############################################################
-  
-  ## colors palette of the classes for the plots
-  palette_colors="fishy" # from "grafify" library
-  
-  ## point shapes  of the classes
-  point_shapes= c(16, 17, 15, 18,3,4,8,25,6)[1:n_classes]
-  
-  
   ###################################################
-  ##### Obtaining plots and information tables  ##### 
+  ##### Obtaining the grid of plots and tables  ##### 
   ###################################################
-  
-  ## auxiliar variables to compute information
-  sum_data=0
-  sum_data_classes=numeric(n_classes)
   
   ## Number of obtained subspaces
-  n_subspaces=length(obtained_subspaces)
+  n_subspaces=length(list_plots)
   
   ## list to store the plots and tables
-  list_grid=list()
+  list_grid=vector("list", n_subspaces)
   
   ## Looping over the subspaces to obtain each plot and information table
   for (subspace in 1:(n_subspaces)){
     
-    ## subspace of this iteration
-    subspace_iter=obtained_subspaces[[subspace]]
+    ## subspace plot of the subspace
+    set.seed(1234)
+    plot_subspace=list_plots[[subspace]]+
+      # deleting the legend
+      ggplot2::theme( legend.position = "none")  
+
+    ## information table of this subspace
+    table_subspace=table[subspace,]
     
-    ## obtained results for the subspace in the corresponding iteration
-    ix_subspace_iter=obtained_subspaces[[subspace]]$data_subspace
-    ix_not_subspace_iter=obtained_subspaces[[subspace]]$data_not_subspace
-    variables_iter=obtained_subspaces[[subspace]]$variables
-    kdn_dataset_level=obtained_subspaces[[subspace]]$kdn
-    
-    ## percentage of data in this subspace
-    n_data_subspace_iter=length(ix_subspace_iter)
-    perc_data_subspace_iter=n_data_subspace_iter/n
-    
-    ## if the subspace has a lower percentage of data than min_data or higher kdn than max_kdn, the method does not plot it
-    if ((perc_data_subspace_iter<min_data)|(kdn_dataset_level>max_kdn)){
-      next
-    }
-    
-    #################################
-    ##### PLOT OF THE SUBSPACE  ##### 
-    #################################
-    
-    ## Data for plotting
-    dataX_plot=dataX[ix_subspace_iter,variables_iter]
-    dataY_plot=dataY[ix_subspace_iter]
-    
-    ## number of unique values of the X columns to plot
-    count_unique_values <- rapply(dataX_plot,  function(x) length(unique(x)))
-    
-    ## Adding variable class to data for plotting
-    dataX_plot$class=dataY_plot
-    
-    ## if one variable is binary (less than two unique variables), reorder 
-    # dataX_plot so that the binary variable is on first position (and 
-    # then in the x axis in the plot)
-    if(any(count_unique_values <=2)){
-      # identifying the variable to plot in x axis and in y axis
-      var_x=which(count_unique_values<=2)
-      var_y=c(1,2)[!(c(1,2) %in% var_x)]
-      dataX_plot=dataX_plot[,c(var_x,var_y,3)]
-    }
-    
-    ## initialize the plot for the corresponding subspace
-    plot_subspace = ggplot2::ggplot(data=dataX_plot,
-                                    aes(x=dataX_plot[,1],y=dataX_plot[,2],
-                                        colour=class,shape = class))  
-    
-    ## scatter plot if both variables are numeric (more than two unique variables)
-    if(all(count_unique_values>2)){
-      plot_subspace = plot_subspace+ggplot2::geom_point(size = 2.2)
-      
-      ## geom_jitter if one variable is not numeric (less than two unique variables)
-    } else if(any(count_unique_values <=2)){
-      # plotting geom jitter
-      set.seed(1234)
-      plot_subspace = plot_subspace+ ggplot2::geom_jitter(aes(x=factor(dataX_plot[,1]),y=dataX_plot[,2]),size = 2.2) 
-    }
-    
-    ## adding color
-    plot_subspace= plot_subspace +
-      grafify::scale_colour_grafify(palette = palette_colors)+
-      ## adding point shapes
-      ggplot2::scale_shape_manual(values = point_shapes)+
-      
-      ## plot theme
-      ggplot2::theme_bw() +
-      
-      ## tittle
-      ggplot2::ggtitle(paste(english::ordinal(subspace),"subspace")) +
-      
-      ## axes names
-      ggplot2::xlab(colnames(dataX_plot)[1]) +
-      ggplot2::ylab(colnames(dataX_plot)[2]) +
-      
-      ## theme of title and axes
-      ggplot2::theme(plot.title = element_text(hjust = 0.5),
-                     legend.position = "none")   
-    
-    
-    ##############################################
-    ##### INFORMATION TABLE OF THE SUBSPACE  ##### 
-    ##############################################
-    
-    ## Initialization of data frame to store the information
-    n_col_df=2+n_classes
-    df_information=data.frame(matrix(nrow=1,ncol = n_col_df))
-    names(df_information)=c("total", classes,"kDN")
-    
-    ## % of data showed in this iteration
-    perc_data_subspace_iter=round(100*perc_data_subspace_iter,2)
-    
-    ## cumulative % of data showed in this iteration
-    sum_data=sum_data+n_data_subspace_iter
-    cum_perc_data_subspace_iter=round(100*sum_data/n,2)
-    
-    ## % of data of each class showed in this iteration
-    dataY_subspace_iter=dataY[ix_subspace_iter]
-    n_data_classes_subspace_iter=table(factor(dataY_subspace_iter, classes))
-    perc_data_classes_subspace_iter= round(100*n_data_classes_subspace_iter/n_data_classes,2)
-    
-    ## cumulative % of data of each class showed in this iteration
-    sum_data_classes=sum_data_classes+n_data_classes_subspace_iter
-    cum_perc_data_classes_subspace_iter= round(100*sum_data_classes/n_data_classes,2)
-    
-    ## Filling the data frame
-    df_information[1,]=c(paste0(cum_perc_data_subspace_iter,"%"),
-                         paste0(cum_perc_data_classes_subspace_iter,"%"),round(kdn_dataset_level,2))
-    
-    ## Format of the table
-    df_information_format <- flextable::flextable(df_information) %>% 
+    ## formating the table
+    table_subspace_format <- flextable::flextable(table_subspace) %>% 
       flextable::add_header_row(colwidths = c(1,n_classes, 1), values = c("total","class", "")) %>% 
       flextable::add_header_row(colwidths = c(n_classes+1, 1), values = c("%n accum.", "kDN")) %>% 
       flextable::align(i = 1, part = "header", align = "center") %>% 
@@ -650,50 +638,34 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
       flextable::fontsize(size = 10,part='all') %>% 
       flextable::autofit(add_w=-2,add_h=-2) %>%
       flextable::theme_box()
-    df_information_format <- flextable::align(df_information_format, align = "center", part = "all")
+    table_subspace_format <- flextable::align(table_subspace_format, align = "center", part = "all")
     
     ## converting the table into a ggplot
-    df_information_format <- ggplot2::ggplot() +
+    table_subspace_format <- ggplot2::ggplot() +
       ggplot2::theme_void() +
-      ggplot2::annotation_custom(grid::rasterGrob(as_raster(df_information_format)))
+      ggplot2::annotation_custom(grid::rasterGrob(as_raster(table_subspace_format)))
     
     
-    
-    ##############################################
-    ##### GRID PLOT + TABLE OF THIS SUBSPACE ##### 
-    ##############################################
-    
-    list_grid[[subspace]]= cowplot::plot_grid(plot_subspace,df_information_format, 
+    ## grid of the plot and table of this subspace
+    list_grid[[subspace]]= cowplot::plot_grid(plot_subspace,table_subspace_format, 
                                               nrow = 1, align = "v",
                                               scale = c(1, 0.7),rel_widths=c(2,2))
   }
   
-  ################################################################
-  ##### MESSAGE IF THERE IS NOT SUBSPACE MEETING CONDITIONS  ##### 
-  ################################################################
-  
-  if(length(list_grid)==0){
-    cat("There is not any subspace meeting conditions: total data proportion >= min_data and kdn data set <= max_kdn.")
-    return(NULL)
-  }
-  
-  
-  
-  ##############################
-  ##### GRID PLOT + TABLE  ##### 
-  ##############################
+
+  #####################################
+  ##### grid of plots and tables  ##### 
+  #####################################
   
   ## obtaining legend for the plot
   legend=get_legend_data(dataX,dataY)
   
-  
   ## grid of plots and tables
-  plot_subspaces_info1=gridExtra::grid.arrange(grobs =list_grid, nrow=length(list_grid))
-  plot_subspaces_info=gridExtra::grid.arrange(plot_subspaces_info1, legend, nrow = 2, heights = c(10, 0.4))
+  display_subspaces=cowplot::plot_grid(plotlist=list_grid, nrow=length(list_grid))
   
-  return(plot_subspaces_info)
+  ## adding legend
+  display_subspaces=cowplot::plot_grid(display_subspaces,legend, nrow = 2, rel_heights = c(10, 0.4))
+  return(display_subspaces)
 }
-
-
 
 
