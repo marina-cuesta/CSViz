@@ -357,7 +357,7 @@ CSViz_subspace_plot <- function(results_CSViz_subspaces, subspace, fixed_xlim=NU
 # - min_data: minimum allowed percentage of data in a subspace for it to be visualized
 # - max_kdn: maximum kDN allowed for a subspace to be displayed
 
-CSViz_available_data_subspace_plot <- function(results_CSViz_subspaces, subspace, fixed_xlim=NULL, fixed_ylim=NULL){
+CSViz_available_data_subspace_plot <- function(results_CSViz_subspaces, subspace){
   
   ###########################
   #### gathering results ####
@@ -411,6 +411,17 @@ CSViz_available_data_subspace_plot <- function(results_CSViz_subspaces, subspace
   
   ## Adding variable class to data for plotting
   dataX_plot$class=dataY_plot
+  
+  ## Obtaining x and y limits for the plots
+  extra_limit=0
+  x_lim_sup=max(dataX_plot[,1])+extra_limit*abs(max(dataX_plot[,1]))
+  y_lim_sup=max(dataX_plot[,2])+extra_limit*abs(max(dataX_plot[,2]))
+  
+  x_lim_inf=min(dataX_plot[,1])-extra_limit*abs(min(dataX_plot[,1]))
+  y_lim_inf=min(dataX_plot[,2])-extra_limit*abs(min(dataX_plot[,2]))
+  
+  fixed_xlim=c(x_lim_inf,x_lim_sup)
+  fixed_ylim=c(y_lim_inf,y_lim_sup)
   
   ## if one variable is binary (less than two unique variables), reorder 
   # dataX_plot so that the binary variable is on first position (and 
@@ -545,8 +556,6 @@ resultados[[1]]
 resultados[[2]]
 resultados[[3]]
 
-  
-
 #########################################################################
 #########################################################################
 ######   VISUALIZATION OF SUBSPACES: GRAPHS + INFORMATION TABLE    ######
@@ -588,19 +597,12 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
   n_classes=length(unique(dataY))
   
   
-  #####################################################
-  #### obtaining list of subbspace plots and table ####
-  #####################################################
+  ##################################################
+  #### obtaining information table of subspaces ####
+  ##################################################
   
-  list_plots_table=CSViz_plots_table(results_CSViz_subspaces, min_data, max_kdn)
-  
-  ## subsetting the plots
-  list_plots=list_plots_table[-length(list_plots_table)]
-  
-  ## subsetting the table
-  table=list_plots_table[[length(list_plots_table)]]
-  ## getting the dataset of the table
-  table=table$body$dataset
+  table=CSViz_table(results_CSViz_subspaces, min_data, max_kdn)
+    
   ## getting the information needed for the display
   table=table[,(4+n_classes+1):dim(table)[2]]
   names(table)=c("total", classes,"kDN")
@@ -611,7 +613,7 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
   ###################################################
   
   ## Number of obtained subspaces
-  n_subspaces=length(list_plots)
+  n_subspaces=dim(table)[1]
   
   ## list to store the plots and tables
   list_grid=vector("list", n_subspaces)
@@ -620,11 +622,10 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
   for (subspace in 1:(n_subspaces)){
     
     ## subspace plot of the subspace
-    set.seed(1234)
-    plot_subspace=list_plots[[subspace]]+
+    plot_subspace=CSViz_subspace_plot(results_CSViz_subspaces, subspace)+
       # deleting the legend
       ggplot2::theme( legend.position = "none")  
-
+    
     ## information table of this subspace
     table_subspace=table[subspace,]
     
@@ -647,12 +648,13 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
     
     
     ## grid of the plot and table of this subspace
+    set.seed(1234)
     list_grid[[subspace]]= cowplot::plot_grid(plot_subspace,table_subspace_format, 
                                               nrow = 1, align = "v",
                                               scale = c(1, 0.7),rel_widths=c(2,2))
   }
   
-
+  
   #####################################
   ##### grid of plots and tables  ##### 
   #####################################
@@ -669,3 +671,92 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
 }
 
 
+
+###################################################################
+###################################################################
+######   VISUALIZATION OF SUBSPACES: DISPLAY STORYTELLING    ######
+###################################################################
+###################################################################
+
+## Function to visualize the obtained subspaces with a plot and a information table for each one
+## PARAMETERS:
+# - results_CSViz_subspaces is the return of the CSViz_subspaces_computation function
+# - min_data: minimum allowed percentage of data in a subspace for it to be visualized
+# - max_kdn: maximum kDN allowed for a subspace to be displayed
+
+CSViz_display_storytelling <- function(results_CSViz_subspaces, min_data, max_kdn){
+
+    #######################################
+    #### Checking initial requirements ####
+    #######################################
+    
+    ## Error if parameters min_data or max_kdn are not in [0,1]
+    if ((min_data<0 | min_data> 1)|(max_kdn<0 | max_kdn> 1)) {
+      stop("min_data and max_kdn must be between 0 and 1")
+    }
+    
+  
+    ##################################################
+    #### obtaining information table of subspaces ####
+    ##################################################
+    
+    table=CSViz_table(results_CSViz_subspaces, min_data, max_kdn)
+    
+    ## Number of obtained subspaces
+    n_subspaces=dim(table)[1]
+    
+    ###################################################
+    ##### Obtaining the grid of plots and tables  ##### 
+    ###################################################
+
+    ## list to store the plots and tables
+    list_grid=vector("list", n_subspaces)
+    
+    ## Looping over the subspaces to obtain each plot and information table
+    for (subspace in 1:(n_subspaces)){
+      
+      ## plot of the available data for the subspace
+      plot_data=CSViz_available_data_subspace_plot(results_CSViz_subspaces,subspace)+
+        # deleting the legend
+        ggplot2::theme( legend.position = "none")  
+      
+      ## getting xlim and ylim of the plot
+      ylim=layer_scales(plot_data)$y$get_limits()
+      xlim=layer_scales(plot_data)$x$get_limits()
+      
+      ## converting to  grob
+      set.seed(1234)
+      plot_data=ggplotGrob(plot_data)
+      
+
+      ## subspace plot of the subspace
+      plot_subspace=CSViz_subspace_plot(results_CSViz_subspaces, subspace,
+                                        fixed_xlim = xlim, fixed_ylim = ylim )+
+        # deleting the legend
+        ggplot2::theme( legend.position = "none")  
+      
+      ## converting to  grob
+      set.seed(1234)
+      plot_subspace=ggplotGrob(plot_subspace)
+      
+      ## grid of the plot and table of this subspace
+      list_grid[[subspace]]= cowplot::plot_grid(plot_data,plot_subspace, 
+                                                nrow = 1, align = "v")
+    }
+    
+    
+    ##########################
+    ##### grid of plots  ##### 
+    ##########################
+    
+    ## obtaining legend for the plot
+    legend=get_legend_data(dataX,dataY)
+    
+    ## grid of plots and tables
+    display_storytelling=cowplot::plot_grid(plotlist=list_grid, nrow=length(list_grid))
+    
+    ## adding legend
+    display_storytelling=cowplot::plot_grid(display_storytelling,legend, nrow = 2, rel_heights = c(10, 0.4))
+    return(display_subspaces)
+  }
+  
