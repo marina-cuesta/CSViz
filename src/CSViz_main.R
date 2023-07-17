@@ -149,7 +149,7 @@ ggplot2::ggsave( filename,
                  dpi = 300,  limitsize = TRUE,  bg = NULL)
 dev.off()
 
-## Storytelling plots of the CSViz subspaces
+## Display of the CSViz subspaces storytelling
 CSViz_subspaces_storytelling=CSViz_display_storytelling(CSViz_computed_subspaces,min_data,max_kdn)
  # saving the plot
 filename=paste0(data_name,"_CSViz_plots_storytelling.png")
