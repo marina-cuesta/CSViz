@@ -109,7 +109,7 @@ scale_data=TRUE
 threshold_na_values=0.15
 
 ## function to compute the subspaces
-results_CSViz_subspaces=CSViz_subspaces_computation(dataX, dataY, k=k, 
+CSViz_computed_subspaces=CSViz_subspaces_computation(dataX, dataY, k=k, 
                                                     trunc_data_elimination=trunc_data_elimination,
                                                     unique_values_factor=unique_values_factor,
                                                     threshold_na_values=threshold_na_values,
@@ -125,39 +125,40 @@ min_data=0.05
 max_kdn=1
 
 ## Detailed information table of the CSViz subspaces
-results_CSViz_table_info=CSViz_table_info(results_CSViz_subspaces,min_data,max_kdn)
-results_CSViz_table_info
+CSViz_information_table=CSViz_display_table(CSViz_computed_subspaces,min_data,max_kdn)
+CSViz_information_table
  # number of subspaces meeting min_data and max_kdn conditions
-n_subspaces_conditions=dim(results_CSViz_table_info$body$dataset)[1]
+n_subspaces_conditions=dim(CSViz_information_table$body$dataset)[1]
  # saving the table as png in the results folder
 table_name=paste0(path_save,data_name,"_CSViz_table_info.png")
-flextable::save_as_image(results_CSViz_table_info, path = table_name)
+flextable::save_as_image(CSViz_information_table, path = table_name)
 
 
-## Plots and information tables of the CSViz subspaces
-results_CSViz_plots_info=CSViz_plots_info(results_CSViz_subspaces,min_data,max_kdn)
+## Display of the CSViz subspaces
+CSViz_subspaces_info=CSViz_display_subspaces(CSViz_computed_subspaces,min_data,max_kdn)
  # saving the plot in the results folder
+
 filename=paste0(data_name,"_CSViz_plots_info.png")
 ggplot2::ggsave( filename,
-                 plot = results_CSViz_plots_info,
+                 plot = CSViz_subspaces_info,
                  device = png(),
                  path = path_save,
                  width = 20,
                  height =n_subspaces_conditions*10,
                  units = "cm",
                  dpi = 300,  limitsize = TRUE,  bg = NULL)
-
+dev.off()
 
 ## Storytelling plots of the CSViz subspaces
-results_CSViz_storytelling=CSViz_storytelling(results_CSViz_subspaces,min_data,max_kdn)
+CSViz_subspaces_storytelling=CSViz_display_storytelling(CSViz_computed_subspaces,min_data,max_kdn)
  # saving the plot
 filename=paste0(data_name,"_CSViz_plots_storytelling.png")
-ggplot2::ggsave( filename,plot = results_CSViz_storytelling,
+ggplot2::ggsave( filename,plot = CSViz_subspaces_storytelling,
         device = png(),
         path = path_save,
         width = 20,
         height = n_subspaces_conditions*10,
         units = "cm",
         dpi = 300,  limitsize = TRUE,  bg = NULL)
-
+dev.off()
 

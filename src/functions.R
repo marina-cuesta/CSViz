@@ -728,11 +728,11 @@ get_legend_data <- function(dataX,dataY) {
 
 ## Function to obtain a plain table with the detailed information about the the obtained subspaces 
 ## PARAMETERS:
-# - results_CSViz_subspaces is the return of the CSViz_subspaces_computation function
+# - CSViz_computed_subspaces is the return of the CSViz_subspaces_computation function
 # - min_data: minimum allowed percentage of data in a subspace for it to be visualized; must be in [0,1]
 # - max_kdn: maximum kDN allowed for a subspace to be displayed; must be in [0,1]
 
-CSViz_table <- function(results_CSViz_subspaces, min_data,max_kdn){
+CSViz_table <- function(CSViz_computed_subspaces, min_data,max_kdn){
   
   #######################################
   #### Checking initial requirements ####
@@ -749,14 +749,14 @@ CSViz_table <- function(results_CSViz_subspaces, min_data,max_kdn){
   ###########################
   
   ## Gathering obtained subspaces
-  obtained_subspaces=results_CSViz_subspaces$obtained_subspaces
+  obtained_subspaces=CSViz_computed_subspaces$obtained_subspaces
   
   ## Number of obtained subspaces
   n_subspaces=length(obtained_subspaces)
   
   ## Gathering original dataX and dataY
-  dataX=results_CSViz_subspaces$dataX
-  dataY=results_CSViz_subspaces$dataY
+  dataX=CSViz_computed_subspaces$dataX
+  dataY=CSViz_computed_subspaces$dataY
   
   
   ################################
@@ -864,18 +864,18 @@ CSViz_table <- function(results_CSViz_subspaces, min_data,max_kdn){
 
 ## Function to display a formatted table with the detailed information about the the obtained subspaces 
 ## PARAMETERS:
-# - results_CSViz_subspaces is the return of the CSViz_subspaces_computation function
+# - CSViz_computed_subspaces is the return of the CSViz_subspaces_computation function
 # - min_data: minimum allowed percentage of data in a subspace for it to be visualized; must be in [0,1]
 # - max_kdn: maximum kDN allowed for a subspace to be displayed; must be in [0,1]
 
-CSViz_display_table <- function(results_CSViz_subspaces, min_data,max_kdn){
+CSViz_display_table <- function(CSViz_computed_subspaces, min_data,max_kdn){
   
   ############################################
   ##### Obtaining Data Y characteristics ##### 
   ############################################
   
   ## Gathering original dataX and dataY
-  dataY=results_CSViz_subspaces$dataY
+  dataY=CSViz_computed_subspaces$dataY
   
   ## dataY as factor
   dataY=factor(dataY) 
@@ -892,7 +892,7 @@ CSViz_display_table <- function(results_CSViz_subspaces, min_data,max_kdn){
   #############################################################
   
   ## Obtaining plain table to be formatted
-  table_information = CSViz_table(results_CSViz_subspaces, min_data,max_kdn)
+  table_information = CSViz_table(CSViz_computed_subspaces, min_data,max_kdn)
   
   
   ############################
@@ -932,21 +932,21 @@ CSViz_display_table <- function(results_CSViz_subspaces, min_data,max_kdn){
 
 ## Function to plot the available data for a subspace
 ## PARAMETERS:
-# - results_CSViz_subspaces is the return of the CSViz_subspaces_computation function
+# - CSViz_computed_subspaces is the return of the CSViz_subspaces_computation function
 # - subspace is an integer selecting one of the obtained subspaces
 
-CSViz_available_data_subspace_plot <- function(results_CSViz_subspaces, subspace){
+CSViz_available_data_subspace_plot <- function(CSViz_computed_subspaces, subspace){
   
   ###########################
   #### gathering results ####
   ###########################
   
   ## Gathering obtained subspace
-  obtained_subspace=results_CSViz_subspaces$obtained_subspaces[[subspace]]
+  obtained_subspace=CSViz_computed_subspaces$obtained_subspaces[[subspace]]
   
   ## Gathering original dataX and dataY
-  dataX=results_CSViz_subspaces$dataX
-  dataY=results_CSViz_subspaces$dataY
+  dataX=CSViz_computed_subspaces$dataX
+  dataY=CSViz_computed_subspaces$dataY
   
   
   #################################
@@ -1071,23 +1071,23 @@ CSViz_available_data_subspace_plot <- function(results_CSViz_subspaces, subspace
 
 ## Function to plot the available data for a subspace
 ## PARAMETERS:
-# - results_CSViz_subspaces is the return of the CSViz_subspaces_computation function
+# - CSViz_computed_subspaces is the return of the CSViz_subspaces_computation function
 # - subspace is an integer selecting one of the obtained subspaces
 # - fixed_xlim is a vector of length 2 containing the minimum and maximum limits for the x axis
 # - fixed_ylim is a vector of length 2 containing the minimum and maximum limits for the y axis
 
-CSViz_subspace_plot <- function(results_CSViz_subspaces, subspace, fixed_xlim=NULL, fixed_ylim=NULL){
+CSViz_subspace_plot <- function(CSViz_computed_subspaces, subspace, fixed_xlim=NULL, fixed_ylim=NULL){
   
   ###########################
   #### gathering results ####
   ###########################
   
   ## Gathering obtained subspace
-  obtained_subspace=results_CSViz_subspaces$obtained_subspaces[[subspace]]
+  obtained_subspace=CSViz_computed_subspaces$obtained_subspaces[[subspace]]
   
   ## Gathering original dataX and dataY
-  dataX=results_CSViz_subspaces$dataX
-  dataY=results_CSViz_subspaces$dataY
+  dataX=CSViz_computed_subspaces$dataX
+  dataY=CSViz_computed_subspaces$dataY
   
   
   #################################
@@ -1203,11 +1203,11 @@ CSViz_subspace_plot <- function(results_CSViz_subspaces, subspace, fixed_xlim=NU
 
 ## Function to obtain a list containing the plot of each of the obtained subspace and the information table
 ## PARAMETERS:
-# - results_CSViz_subspaces is the return of the CSViz_subspaces_computation function
+# - CSViz_computed_subspaces is the return of the CSViz_subspaces_computation function
 # - min_data: minimum allowed percentage of data in a subspace for it to be visualized; must be in [0,1]
 # - max_kdn: maximum kDN allowed for a subspace to be displayed; must be in [0,1]
 
-CSViz_plots_table <- function(results_CSViz_subspaces, min_data, max_kdn){
+CSViz_plots_table <- function(CSViz_computed_subspaces, min_data, max_kdn){
   
   ## the initial check requirements is performed in CSViz_table function
   
@@ -1215,7 +1215,7 @@ CSViz_plots_table <- function(results_CSViz_subspaces, min_data, max_kdn){
   ##### obtaining information table of subspaces ##### 
   ####################################################
   
-  information_table=CSViz_display_table(results_CSViz_subspaces, min_data, max_kdn)
+  information_table=CSViz_display_table(CSViz_computed_subspaces, min_data, max_kdn)
   
   ## Number of obtained subspaces meeting min_data and max_kdn condiions
   n_subspaces=dim(information_table$body$dataset)[1]
@@ -1235,7 +1235,7 @@ CSViz_plots_table <- function(results_CSViz_subspaces, min_data, max_kdn){
   ##### Obtaining plots of the subspaces  ##### 
   #############################################
   
-  table_plots_list[1:n_subspaces] = lapply(1:n_subspaces, CSViz_subspace_plot, results_CSViz_subspaces =results_CSViz_subspaces )
+  table_plots_list[1:n_subspaces] = lapply(1:n_subspaces, CSViz_subspace_plot, CSViz_computed_subspaces =CSViz_computed_subspaces )
   
   
   return(table_plots_list)
@@ -1250,11 +1250,11 @@ CSViz_plots_table <- function(results_CSViz_subspaces, min_data, max_kdn){
 
 ## Function to display the plot of the subspaces and their information table in a single plot
 ## PARAMETERS:
-# - results_CSViz_subspaces is the return of the CSViz_subspaces_computation function
+# - CSViz_computed_subspaces is the return of the CSViz_subspaces_computation function
 # - min_data: minimum allowed percentage of data in a subspace for it to be visualized; must be in [0,1]
 # - max_kdn: maximum kDN allowed for a subspace to be displayed; must be in [0,1]
 
-CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
+CSViz_display_subspaces <- function(CSViz_computed_subspaces, min_data, max_kdn){
   
   ## the initial check requirements is performed in CSViz_table function
   
@@ -1263,10 +1263,10 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
   ##########################################################
   
   ## Gathering original dataY
-  dataY=results_CSViz_subspaces$dataY
+  dataY=CSViz_computed_subspaces$dataY
   
   ## Gathering original dataY
-  dataX=results_CSViz_subspaces$dataX
+  dataX=CSViz_computed_subspaces$dataX
   
   ## classes in data set
   classes=levels(dataY)
@@ -1279,7 +1279,7 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
   #### obtaining information table of subspaces ####
   ##################################################
   
-  table=CSViz_table(results_CSViz_subspaces, min_data, max_kdn)
+  table=CSViz_table(CSViz_computed_subspaces, min_data, max_kdn)
   
   ## getting the information needed for the display
   table=table[,(4+n_classes+1):dim(table)[2]]
@@ -1300,7 +1300,7 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
   for (subspace in 1:(n_subspaces)){
     
     ## subspace plot of the subspace
-    plot_subspace=CSViz_subspace_plot(results_CSViz_subspaces, subspace)+
+    plot_subspace=CSViz_subspace_plot(CSViz_computed_subspaces, subspace)+
       # deleting the legend
       ggplot2::theme( legend.position = "none")  
     
@@ -1327,11 +1327,9 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
     table_subspace_format <- ggplot2::ggplot() +
       ggplot2::theme_void() +
       ggplot2::annotation_custom(grid::rasterGrob(as_raster(table_subspace_format)))
-    ## converting to  grob
-    table_subspace_format=ggplotGrob(table_subspace_format)
+
     
     ## grid of the plot and table of this subspace
-    set.seed(1234)
     list_grid[[subspace]]= cowplot::plot_grid(plot_subspace,table_subspace_format, 
                                               nrow = 1, align = "v",
                                               scale = c(1, 0.7),rel_widths=c(2,2))
@@ -1344,12 +1342,13 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
   
   ## obtaining legend for the plot
   legend=get_legend_data(dataX,dataY)
-  
+
   ## grid of plots and tables
   display_subspaces=cowplot::plot_grid(plotlist=list_grid, nrow=length(list_grid))
-  
   ## adding legend
-  display_subspaces=cowplot::plot_grid(display_subspaces,legend, nrow = 2, rel_heights = c(10, 0.4))
+  display_subspaces=cowplot::plot_grid(display_subspaces,legend, nrow = 2, rel_heights = c(10, 0.4))+
+    theme(panel.background = element_rect(fill = 'white', color = NA))
+
   return(display_subspaces)
 }
 
@@ -1364,11 +1363,11 @@ CSViz_display_subspaces <- function(results_CSViz_subspaces, min_data, max_kdn){
 ## Function to display the storytelling of the subspaces: plot of the available data for the 
  # subspace and plot of the subspace in a single plot
 ## PARAMETERS:
-# - results_CSViz_subspaces is the return of the CSViz_subspaces_computation function
+# - CSViz_computed_subspaces is the return of the CSViz_subspaces_computation function
 # - min_data: minimum allowed percentage of data in a subspace for it to be visualized; must be in [0,1]
 # - max_kdn: maximum kDN allowed for a subspace to be displayed; must be in [0,1]
 
-CSViz_display_storytelling <- function(results_CSViz_subspaces, min_data, max_kdn){
+CSViz_display_storytelling <- function(CSViz_computed_subspaces, min_data, max_kdn){
   
   ## the initial check requirements is performed in CSViz_table function
   
@@ -1376,7 +1375,7 @@ CSViz_display_storytelling <- function(results_CSViz_subspaces, min_data, max_kd
   #### obtaining information table of subspaces ####
   ##################################################
   
-  table=CSViz_table(results_CSViz_subspaces, min_data, max_kdn)
+  table=CSViz_table(CSViz_computed_subspaces, min_data, max_kdn)
   
   ## Number of obtained subspaces
   n_subspaces=dim(table)[1]
@@ -1392,7 +1391,7 @@ CSViz_display_storytelling <- function(results_CSViz_subspaces, min_data, max_kd
   for (subspace in 1:(n_subspaces)){
     
     ## plot of the available data for the subspace
-    plot_data=CSViz_available_data_subspace_plot(results_CSViz_subspaces,subspace)+
+    plot_data=CSViz_available_data_subspace_plot(CSViz_computed_subspaces,subspace)+
       # deleting the legend
       ggplot2::theme( legend.position = "none")  
     
@@ -1405,7 +1404,7 @@ CSViz_display_storytelling <- function(results_CSViz_subspaces, min_data, max_kd
     plot_data=ggplotGrob(plot_data)
     
     ## subspace plot of the subspace
-    plot_subspace=CSViz_subspace_plot(results_CSViz_subspaces, subspace,
+    plot_subspace=CSViz_subspace_plot(CSViz_computed_subspaces, subspace,
                                       fixed_xlim = xlim, fixed_ylim = ylim )+
       # deleting the legend
       ggplot2::theme( legend.position = "none")  
@@ -1430,6 +1429,8 @@ CSViz_display_storytelling <- function(results_CSViz_subspaces, min_data, max_kd
   display_storytelling=cowplot::plot_grid(plotlist=list_grid, nrow=length(list_grid))
   
   ## adding legend
-  display_storytelling=cowplot::plot_grid(display_storytelling,legend, nrow = 2, rel_heights = c(10, 0.4))
-  return(display_subspaces)
+  display_storytelling=cowplot::plot_grid(display_storytelling,legend, nrow = 2, rel_heights = c(10, 0.4))+
+    theme(panel.background = element_rect(fill = 'white', color = NA))
+  
+  return(display_storytelling)
 }
